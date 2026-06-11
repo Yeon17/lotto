@@ -7,12 +7,34 @@ function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email));
 }
 
+function getSupabaseConfig() {
+  const url = (process.env.SUPABASE_URL || "").trim();
+  const key = (
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_KEY ||
+    ""
+  ).trim();
+  return { url, key };
+}
+
+function missingEnvMessage() {
+  const { url, key } = getSupabaseConfig();
+  const missing = [];
+  if (!url) missing.push("SUPABASE_URL");
+  if (!key) missing.push("SUPABASE_SERVICE_ROLE_KEY");
+  return (
+    "Vercel 환경 변수가 서버에 반영되지 않았습니다: " +
+    missing.join(", ") +
+    ". Vercel → Settings → Environment Variables 확인 후 Redeploy 하세요."
+  );
+}
+
 async function saveToSupabase(entry) {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const { url, key } = getSupabaseConfig();
 
   if (!url || !key) {
-    throw new Error("Supabase 환경 변수(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)가 설정되지 않았습니다.");
+    throw new Error(missingEnvMessage());
   }
 
   const response = await fetch(`${url.replace(/\/$/, "")}/rest/v1/signups`, {

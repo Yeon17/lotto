@@ -1059,7 +1059,10 @@
       }
     } catch (err) {
       hideTyping();
-      addMessage("연결 오류: " + err.message + "\n(Vercel에 GEMINI_API_KEY가 설정되어 있는지 확인해 주세요)", "error");
+      const hint = /API_KEY|환경 변수|401|403/i.test(err.message)
+        ? "\n(Vercel에 GEMINI_API_KEY가 설정되어 있는지 확인해 주세요)"
+        : "";
+      addMessage("연결 오류: " + err.message + hint, "error");
       setInputEnabled(true);
     }
 
