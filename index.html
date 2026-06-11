@@ -504,6 +504,107 @@
   .chat-input-row input:focus-visible { outline: 2px solid var(--primary-focus); }
   .chat-input-row input:disabled { background: var(--parchment); }
   .chat-input-row .btn-primary { flex-shrink: 0; }
+
+  /* 가입 팝업 */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    width: 100%;
+    max-width: 420px;
+    background: var(--canvas);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--hairline);
+    padding: 32px 28px;
+    animation: fadeIn 0.3s ease;
+  }
+  .modal-title {
+    font-family: var(--display-font);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.28px;
+    line-height: 1.14;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .modal-desc {
+    font-size: 17px;
+    line-height: 1.47;
+    letter-spacing: -0.374px;
+    color: var(--ink-muted-80);
+    margin-bottom: 24px;
+  }
+  .modal-form { display: flex; flex-direction: column; gap: 14px; }
+  .form-field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-80);
+    margin-bottom: 6px;
+  }
+  .form-field input {
+    width: 100%;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-pill);
+    padding: 12px 20px;
+    height: 44px;
+    font-family: var(--text-font);
+    font-size: 17px;
+    letter-spacing: -0.374px;
+    color: var(--ink);
+    background: var(--canvas);
+  }
+  .form-field input:focus-visible { outline: 2px solid var(--primary-focus); }
+  .form-field input.invalid { border-color: #ef5350; }
+  .form-error {
+    font-size: 12px;
+    color: #ef5350;
+    margin-top: 4px;
+    display: none;
+  }
+  .form-field.has-error .form-error { display: block; }
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .modal-actions .btn-primary { width: 100%; padding: 14px; }
+  .modal-skip {
+    background: none;
+    border: none;
+    color: var(--ink-muted-48);
+    font-size: 14px;
+    letter-spacing: -0.224px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .modal-skip:active { transform: scale(0.95); }
+  .modal-success {
+    display: none;
+    text-align: center;
+    padding: 16px 0;
+  }
+  .modal-success.show { display: block; }
+  .modal-success-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  .modal-success p {
+    font-size: 17px;
+    line-height: 1.47;
+    color: var(--ink-muted-80);
+  }
+  .modal-form.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -564,6 +665,45 @@
       추천 번호는 무작위·운세 기반으로 생성됩니다. 재미로만 즐겨주세요.
       역대 당첨번호는 공개 데이터 기준이며, 정확한 정보는 동행복권에서 확인하세요.
     </p>
+  </div>
+
+  <!-- AI 서비스 가입 팝업 -->
+  <div class="modal-overlay" id="signupModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+      <div id="signupFormWrap">
+        <h2 class="modal-title" id="modalTitle">AI 로또 번호 추천 서비스</h2>
+        <p class="modal-desc">
+          앞으로 AI가 분석한 맞춤 로또 번호를 정기적으로 추천해 드립니다.<br />
+          서비스 이용을 위해 가입 정보를 입력해 주세요.
+        </p>
+        <form class="modal-form" id="signupForm" novalidate>
+          <div class="form-field" id="fieldName">
+            <label for="signupName">이름</label>
+            <input type="text" id="signupName" name="name" placeholder="홍길동" autocomplete="name" required />
+            <span class="form-error">이름을 입력해 주세요.</span>
+          </div>
+          <div class="form-field" id="fieldPhone">
+            <label for="signupPhone">전화번호</label>
+            <input type="tel" id="signupPhone" name="phone" placeholder="010-1234-5678" autocomplete="tel" required />
+            <span class="form-error">올바른 전화번호를 입력해 주세요.</span>
+          </div>
+          <div class="form-field" id="fieldEmail">
+            <label for="signupEmail">이메일</label>
+            <input type="email" id="signupEmail" name="email" placeholder="example@email.com" autocomplete="email" required />
+            <span class="form-error">올바른 이메일을 입력해 주세요.</span>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn-primary" id="signupSubmitBtn">가입하기</button>
+            <button type="button" class="modal-skip" id="signupSkipBtn">나중에 할게요</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-success" id="signupSuccess">
+        <div class="modal-success-icon">✓</div>
+        <p><strong>가입이 완료되었습니다!</strong><br />AI 맞춤 번호 추천 서비스를 곧 이용하실 수 있어요.</p>
+        <button type="button" class="btn-primary" id="signupCloseBtn" style="margin-top:20px;width:100%;padding:14px;">확인</button>
+      </div>
+    </div>
   </div>
 
 <script src="lotto_data.js"></script>
@@ -635,9 +775,119 @@
       row.appendChild(balls);
       resultsEl.appendChild(row);
     }
+    scheduleSignupPopup();
   }
 
   btn.addEventListener("click", render);
+
+  /* ---------- 가입 팝업 ---------- */
+  const signupModal = document.getElementById("signupModal");
+  const signupForm = document.getElementById("signupForm");
+  const signupFormWrap = document.getElementById("signupFormWrap");
+  const signupSuccess = document.getElementById("signupSuccess");
+  const signupSkipBtn = document.getElementById("signupSkipBtn");
+  const signupCloseBtn = document.getElementById("signupCloseBtn");
+  const SIGNUP_KEY = "lotto_ai_signed_up";
+
+  function isSignedUp() {
+    return localStorage.getItem(SIGNUP_KEY) === "1";
+  }
+
+  function scheduleSignupPopup() {
+    if (isSignedUp()) return;
+    setTimeout(showSignupModal, 900);
+  }
+
+  function showSignupModal() {
+    if (isSignedUp()) return;
+    signupFormWrap.style.display = "block";
+    signupSuccess.classList.remove("show");
+    signupForm.classList.remove("hidden");
+    signupModal.classList.add("open");
+    signupModal.setAttribute("aria-hidden", "false");
+    document.getElementById("signupName").focus();
+  }
+
+  function hideSignupModal() {
+    signupModal.classList.remove("open");
+    signupModal.setAttribute("aria-hidden", "true");
+  }
+
+  function validatePhone(phone) {
+    const digits = phone.replace(/\D/g, "");
+    return /^01[016789]\d{7,8}$/.test(digits);
+  }
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function setFieldError(fieldId, hasError) {
+    const field = document.getElementById(fieldId);
+    field.classList.toggle("has-error", hasError);
+    field.querySelector("input").classList.toggle("invalid", hasError);
+  }
+
+  function validateSignupForm() {
+    const name = document.getElementById("signupName").value.trim();
+    const phone = document.getElementById("signupPhone").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    let ok = true;
+
+    setFieldError("fieldName", !name);
+    if (!name) ok = false;
+
+    setFieldError("fieldPhone", !validatePhone(phone));
+    if (!validatePhone(phone)) ok = false;
+
+    setFieldError("fieldEmail", !validateEmail(email));
+    if (!validateEmail(email)) ok = false;
+
+    return ok ? { name, phone, email } : null;
+  }
+
+  async function submitSignup(data) {
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "가입 처리 실패");
+    return json;
+  }
+
+  function showSignupComplete() {
+    signupForm.classList.add("hidden");
+    signupSuccess.classList.add("show");
+    localStorage.setItem(SIGNUP_KEY, "1");
+  }
+
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = validateSignupForm();
+    if (!data) return;
+
+    const btnEl = document.getElementById("signupSubmitBtn");
+    btnEl.disabled = true;
+    btnEl.textContent = "처리 중…";
+
+    try {
+      await submitSignup(data);
+      showSignupComplete();
+    } catch (err) {
+      alert("가입 오류: " + err.message);
+    } finally {
+      btnEl.disabled = false;
+      btnEl.textContent = "가입하기";
+    }
+  });
+
+  signupSkipBtn.addEventListener("click", hideSignupModal);
+  signupCloseBtn.addEventListener("click", hideSignupModal);
+  signupModal.addEventListener("click", (e) => {
+    if (e.target === signupModal) hideSignupModal();
+  });
 
   /* ---------- 탭 전환 ---------- */
   const tabs = document.querySelectorAll(".tab");
@@ -800,6 +1050,7 @@
         showQuickReplies(["다시 상담받기"], () => resetChat());
         chatInput.placeholder = "아래 버튼으로 다시 시작할 수 있어요";
         setInputEnabled(false);
+        scheduleSignupPopup();
       } else {
         addBotMessage(data.reply);
         maybeShowMoodReplies(data.reply);
